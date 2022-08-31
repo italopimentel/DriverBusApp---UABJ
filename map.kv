@@ -1,0 +1,32 @@
+
+#:import MapView kivy_garden.mapview.MapView
+#:import MapMarker kivy_garden.mapview.MapView
+
+<MainScreen@FloatLayout>
+    name: "mainscreen"
+
+    MapView:
+        id: map
+        pos_hint: {"center_x": 0.5,"center_y": 0.5}
+        size_hint: 1,1
+        zoom: 25
+        MapMarker:
+            id: userLocal
+            source: 'imgs/onibus_local.png'
+
+    MDToolbar:
+        title: "OnibusUABJ"
+        elevation: 5
+        pos_hint: {'top': 1}
+
+    MDFloatingActionButtonSpeedDial:
+        id: funcBtns
+        callback: root.multipleButtonsCall
+        data: {'Lotação': 'imgs/lotacao.png', 'Centralizar': 'imgs/local.png'}
+        pos_hint: {"center_x":0.5,"center_y":0.5}
+
+    MDFillRoundFlatButton:
+        id: btnStart
+        text: "Iniciar"
+        pos_hint: {"center_x":0.5,"center_y":0.07}
+        size_hint: 0.25, 0.06
