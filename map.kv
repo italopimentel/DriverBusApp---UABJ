@@ -52,10 +52,6 @@
             id: map
             pos_hint: {"center_x": 0.5,"center_y": 0.5}
             size_hint: 1,1
-            zoom: 15
-            MapMarker:
-                id: localBus
-                source: "imgs/onibus_local.png"
 
         MDFloatingActionButtonSpeedDial:
             id: funcBtns
@@ -68,3 +64,4 @@
             text: "Iniciar"
             pos_hint: {"center_x":0.5,"center_y":0.07}
             size_hint: 0.25, 0.06
+            on_release: root.startService()
