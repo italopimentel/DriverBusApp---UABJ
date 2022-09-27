@@ -52,12 +52,16 @@
             id: map
             pos_hint: {"center_x": 0.5,"center_y": 0.5}
             size_hint: 1,1
+            lat: -8.3316651
+            lon: -36.4134225
+            zoom: 15
 
         MDFloatingActionButtonSpeedDial:
             id: funcBtns
             callback: root.multipleButtonsCall
-            data: {'Lotação': 'imgs/lotacao.png', 'Centralizar': 'imgs/local.png', 'Sair': 'imgs/log_out.png'}
+            data: {'Lotacao': 'imgs/lotacao.png', 'Centralizar': 'imgs/local.png', 'Sair': 'imgs/log_out.png'}
             pos_hint: {"center_x":0.5,"center_y":0.5}
+            md_bg_color: 'blue'
 
         MDFillRoundFlatButton:
             id: btnStart

@@ -4,12 +4,13 @@ from kivymd.app import MDApp
 from kivy_garden.mapview import MapView, MapMarker
 from kivy.utils import platform
 from kivy.uix.screenmanager import Screen, ScreenManager
-from kivy.clock import Clock
+from kivy.clock import Clock, mainthread
 from lib.filemanagment import FileManagment
 import requests
 from plyer import gps
 
 userPosition = {'id': 0, 'lat': 0, 'lon': 0}
+sendData = False
 
 class ScreenManagment(ScreenManager):
     pass
@@ -27,14 +28,15 @@ class LoginScreen(Screen):
 
 class MainScreen(Screen):
 
-    activateGps = False
     markerList = [MapMarker(), MapMarker()]
 
     def drawOnMap(self):
         pass
 
+    @mainthread
     def updatePosition(self, dt):
         global userPosition
+        global sendData
         if platform == 'android':
             self.markerList[0] = self.markerList[1]
             self.markerList[1] = self.addMarker(userPosition['lat'], userPosition['lon'], source="imgs/onibus_local.png")
@@ -43,10 +45,11 @@ class MainScreen(Screen):
             self.ids.map.add_marker(self.markerList[1])
             self.ids.map.remove_marker(self.markerList[0])
             print(userPosition)
-            try:
-                requests.post("https://Aplicativo-Onibus.italopimentel.repl.co/routers", json=userPosition)
-            except:
-                print("Não foi possível enviar a rota, ocorreu algum erro")
+            if sendData == True:
+                try:
+                    requests.post("https://Aplicativo-Onibus.italopimentel.repl.co/routers", json=userPosition)
+                except:
+                    print("Não foi possível enviar a rota, ocorreu algum erro")
 
     def addMarker(self, lat, lon, source):
         return MapMarker(lat=lat, lon=lon, source=source)
@@ -60,17 +63,23 @@ class MainScreen(Screen):
             self.manager.get_screen("loginscreen").fileManagment.deleteUserInfo()
             self.manager.current = "loginscreen"
 
-    def gpsControler(self):
-        pass
-
     def startService(self):
-        self.gpsControler()
+        global sendData
+        if sendData == False:
+            sendData = True
+            self.ids.btnStart.text = "Parar"
+            self.ids.btnStart.color = "red"
+            print("O valor foi mudado para {}".format(sendData))
+        elif sendData == True:
+            sendData = False
+            self.ids.btnStart.text = "Iniciar"
+            self.ids.btnStart.color = "blue"
+            print("O valor foi mudado para {}".format(sendData))
 
 class MapApp(MDApp):
 
     fileManagment = FileManagment()
     userInfo = fileManagment.getUserInfo()
-    loggedIn = False
 
     def on_loc_update(self, **kwargs):
         global userPosition
@@ -79,26 +88,23 @@ class MapApp(MDApp):
         print(kwargs.items())
 
     def on_start(self):
-        if platform == 'android':
-            gps.configure(on_location=self.on_loc_update)
-            gps.start(minTime=3000, minDistance=1)
-
-    def build(self):
         self.theme_cls.theme_style = 'Dark'
         self.theme_cls.primary_palette = 'Blue'
         self.title = 'Tela Inicial'
 
+        if platform == 'android':
+            gps.configure(on_location=self.on_loc_update)
+            gps.start(minTime=3000, minDistance=0)
+
+    def build(self):
         screenManagment = ScreenManagment()
         Clock.schedule_interval(screenManagment.get_screen("mainscreen").updatePosition, 3)
-
         try:
             if self.userInfo["login"] == "italoph" and self.userInfo["password"] == "12345":
-                self.loggedIn == True
                 screenManagment.current = "mainscreen"
         except:
             print("Login ou senha vazios ou incorretos!")
 
         return screenManagment
-
 
 app = MapApp().run()
